@@ -1,8 +1,13 @@
-import { findTextAtCaret, isText, parseFnNest } from "./utils"
+import { findTextAtCaret, isText } from "./utils"
 
 interface Parameter {
     name: string
     arguments: string[]
+}
+
+interface FnNest {
+    name: string,
+    parameterIndex: number
 }
 
 /**
@@ -20,25 +25,31 @@ export interface AutoCompFragment {
 export class AutoComplete {
     datas: AutoCompFragment[]
     default: AutoCompFragment[]
-    fnNest: {
-        name: string,
-        parameterIndex: number
-    }[] = []
+    fnNest: FnNest[] = []
     backspaced: boolean = false
+    suggestions: string[] = []
 
     constructor(datas: AutoCompFragment[], defaultComp: AutoCompFragment[]) {
         this.datas = datas
         this.default = defaultComp
     }
 
-    calcSuggestions(text: string, caretPosition: number | null, input?: string): string[] | null {
-        let suggestions: string[] | null = []
+    getSuggestions(input?: string, caretPosition?: number): string[] {
+        if (input && caretPosition) {
+            let textAtCaret = findTextAtCaret(input, caretPosition)
+            return this.suggestions.filter(str => str.startsWith(textAtCaret) && textAtCaret.length <= str.length)
+        } else {
+            return this.suggestions
+        }
+    }
+
+    calcSuggestions(text: string, caretPosition: number | null, input?: string) {
         const trimmedText = text.trim();
         const charInput = input ?? "";
 
         if (trimmedText === "" || caretPosition === 0 || caretPosition === null) {
-            this.addDefaultSuggestions(suggestions);
-            return suggestions;
+            this.addDefaultSuggestions();
+            return;
         } 
 
         switch (charInput) {
@@ -47,11 +58,13 @@ export class AutoComplete {
             case "ArrowLeft":
             case "ArrowRight":
                 //Inside function
-                this.fnNest = parseFnNest(text, caretPosition)
-                return this.currentParameter()
+                this.parseFnNest(text, caretPosition)
+                this.suggestions = this.currentParameter() ?? this.suggestions
+                return;
             case ",":
-                this.fnNest = parseFnNest(text, caretPosition)
-                return this.nextParameter()
+                this.parseFnNest(text, caretPosition)
+                this.suggestions = this.nextParameter() ?? this.suggestions
+                return;
             case ".":
             case ")":
                 break
@@ -62,11 +75,13 @@ export class AutoComplete {
                 case "(":
                 case '"':
                     //Inside function
-                    this.fnNest = parseFnNest(text, caretPosition)
-                    return this.currentParameter()
+                    this.parseFnNest(text, caretPosition)
+                    this.suggestions = this.currentParameter() ?? this.suggestions
+                    return;
                 case ",":
-                    this.fnNest = parseFnNest(text, caretPosition)
-                    return this.nextParameter()
+                    this.parseFnNest(text, caretPosition)
+                    this.suggestions = this.nextParameter() ?? this.suggestions
+                    return;
                 case ".":
                 case ")":
                     break
@@ -74,36 +89,41 @@ export class AutoComplete {
             }
         }
 
-        this.addDefaultSuggestions(suggestions);
-        return suggestions;
+        this.addDefaultSuggestions();
     }
 
-    onInputHandler(text: string, caretPosition: number | null, input: string): string[] | null {
-        if (text.trim() === "" || caretPosition === 0 || caretPosition === null) {
-            return null
-        }
+    onInputHandler(text: string, caretPosition: number | null, input: string) {
+        const trimmedText = text.trim();
+        const charInput = input ?? "";
+        
+        if (trimmedText === "" || caretPosition === 0 || caretPosition === null) {
+            return;
+        } 
 
-        if (this.backspaced === true && input !== "Backspace") {
+        if (this.backspaced === true && charInput !== "Backspace") {
             this.backspaced = false;
-            return this.calcSuggestions(text, caretPosition, input)
+            return this.calcSuggestions(text, caretPosition, charInput)
            
         }
 
-        switch (input) {
+        switch (charInput) {
             case "(":
                 if (!isText(text, caretPosition)) {
                     const fnName = findTextAtCaret(text, caretPosition, 1)
-                    return this.startFn(fnName)
+                    this.suggestions = this.startFn(fnName) ?? this.suggestions
+                    return;
                 }
                 break;
             case ",":
                 if (!isText(text, caretPosition)) {
-                    return this.nextParameter()
+                    this.suggestions = this.nextParameter() ?? this.suggestions
+                    return;
                 }
                 break;
             case ")":
                 if (!isText(text, caretPosition)) {
-                    return this.endFn()
+                    this.suggestions = this.endFn()
+                    return;
                 }
                 break;
             case "Backspace":
@@ -113,10 +133,8 @@ export class AutoComplete {
                 break;
             case "ArrowLeft":
             case "ArrowRight":
-                return this.calcSuggestions(text, caretPosition, input)
+                return this.calcSuggestions(text, caretPosition, charInput)
         }
-
-        return null
     }
 
     private startFn(fnName: string): string[] | null {
@@ -151,9 +169,8 @@ export class AutoComplete {
 
     private currentParameter(): string[] | null {
         if (this.fnNest.length === 0) {
-            let suggestion: string[] = []
-            this.addDefaultSuggestions(suggestion)
-            return suggestion
+            this.addDefaultSuggestions()
+            return null
         }
         let currentFn = this.fnNest[this.fnNest.length - 1]
         for (const data of this.datas) {
@@ -165,14 +182,46 @@ export class AutoComplete {
         return null
     }
 
-    private addDefaultSuggestions(suggestions: string[]): void {
+    private addDefaultSuggestions(): void {
         this.fnNest = [];
         this.backspaced = false;
+        this.suggestions = []
         for (const data of this.default) {
-            suggestions.push(data.name);
+            this.suggestions.push(data.name)
         }
     }
 
+    private parseFnNest(text: string, caret?: number | null) {
+        let fnNest: FnNest[] = []
+        let fnName = ""
+        let isString = false
+        const len = caret ?? text.length
+    
+        for (let i = 0; i < len; i++) {
+            if (!isString) {
+                if (text[i] === "(") {
+                    fnNest.push({
+                        name: fnName,
+                        parameterIndex: 0
+                    })
+                    fnName = ""
+                } else if (text[i] === ")") {
+                    fnNest.pop()
+                } else if (text[i] === '"') {
+                    isString = true
+                } else if (text[i] === ",") {
+                    fnNest[fnNest.length - 1].parameterIndex = fnNest[fnNest.length - 1].parameterIndex + 1
+                } else {
+                    fnName = fnName + text[i]
+                }
+            } else {
+                if (text[i] === '"') {
+                    isString = false
+                } 
+            }
+        }
+        this.fnNest = fnNest
+    }
 }
 
 

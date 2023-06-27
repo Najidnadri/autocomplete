@@ -3,37 +3,6 @@ interface FnNest {
     parameterIndex: number
 }
 
-export function parseFnNest(text: string, caret?: number | null) {
-    let fnNest: FnNest[] = []
-    let fnName = ""
-    let isString = false
-    const len = caret ?? text.length
-    //mapper(ReadData("test","fieldA","value", mapper(ReadData("tes"))))
-    for (let i = 0; i < len; i++) {
-        if (!isString) {
-            if (text[i] === "(") {
-                fnNest.push({
-                    name: fnName,
-                    parameterIndex: 0
-                })
-                fnName = ""
-            } else if (text[i] === ")") {
-                fnNest.pop()
-            } else if (text[i] === '"') {
-                isString = true
-            } else if (text[i] === ",") {
-                fnNest[fnNest.length - 1].parameterIndex = fnNest[fnNest.length - 1].parameterIndex + 1
-            } else {
-                fnName = fnName + text[i]
-            }
-        } else {
-            if (text[i] === '"') {
-                isString = false
-            } 
-        }
-    }
-    return fnNest
-}
 
 export function isText(text: string, caretPosition: number | null) {
     if (text.trim() === "" || caretPosition === 0 || caretPosition === null) {

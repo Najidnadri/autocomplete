@@ -1,6 +1,6 @@
 <div class="autocomplete">
     <input type="text" on:input={inputHandler} on:click={onClickHandler} on:keydown={keyPressedHandler} id="autocomplete1"/>
-    <AutocompleteTab suggestions={suggestions} input={input} caretPosition={caretPosition} />
+    <AutocompleteTab suggestions={suggestions} />
 </div>
 
 <script lang="ts">
@@ -11,8 +11,7 @@ import { onMount } from "svelte";
 
 const AutoCompleteData = new AutoComplete([readMapperFunction, mapperFunction, readDataFunction], [mapperFunction])
 let inputEl: HTMLInputElement | null;
-let suggestions: string[] = [];
-let input: string = "";
+let suggestions: string[] = []
 let caretPosition: number = 0;
 
 onMount(() => {
@@ -21,27 +20,24 @@ onMount(() => {
 
 const inputHandler = (event: Event) => {
     event.preventDefault()
-    input = inputEl?.value ?? "";
+    const text = inputEl?.value ?? "";
 
     caretPosition = inputEl!.selectionStart!
+    suggestions = AutoCompleteData.getSuggestions(text, caretPosition)
 }
 
 let keyPressedHandler = (event: KeyboardEvent) => {
     const text = inputEl?.value ?? "";
     caretPosition = inputEl!.selectionStart!
 
-    let suggs = AutoCompleteData.onInputHandler(text, caretPosition, event.key)
-    if (suggs) {
-        suggestions = suggs
-    }
+    AutoCompleteData.onInputHandler(text, caretPosition, event.key)
+    //suggestions = AutoCompleteData.getSuggestions(text, caretPosition)
 }
 
 const onClickHandler = () => {
     const text = inputEl?.value ?? "";
-    const suggs = AutoCompleteData.calcSuggestions(text, inputEl!.selectionStart)
-    if (suggs) {
-        suggestions = suggs
-    }
+    AutoCompleteData.calcSuggestions(text, inputEl!.selectionStart)
+    suggestions = AutoCompleteData.getSuggestions()
 }
 
 </script>

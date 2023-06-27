@@ -1,6 +1,6 @@
 
 <div class="autocomplete-tabs">
-    {#each renderedSuggestions as suggestion}
+    {#each suggestions as suggestion}
     <div class="autocomplete-tab">
         <p>{suggestion} </p>
     </div>
@@ -8,18 +8,8 @@
 </div>  
 
 
-<script lang="ts">
-import { findTextAtCaret } from "../utils";  
+<script lang="ts"> 
 export let suggestions: string[]
-export let input: string
-export let caretPosition: number
-let renderedSuggestions: string[] = []
-
-
-$: {
-    let textAtCaret = findTextAtCaret(input, caretPosition)
-    renderedSuggestions = suggestions.filter(str => str.startsWith(textAtCaret) && textAtCaret.length <= str.length)
-}
 
 </script>
 
