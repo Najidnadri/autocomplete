@@ -1,21 +1,16 @@
 <div class="autocomplete">
-    <input type="text" on:input={inputHandler} on:click={onClickHandler} on:keydown={keyPressedHandler} id="autocomplete1"/>
+    <input type="text" on:input={inputHandler} on:click={onClickHandler} on:keydown={keyPressedHandler} bind:this={inputEl} id="autocomplete1"/>
     <AutocompleteTab suggestions={suggestions} />
 </div>
 
 <script lang="ts">
 import type { AutoComplete } from "./model";
 import AutocompleteTab from "./autocompleteTab.svelte";
-import { onMount } from "svelte";
 
 export let AutoCompleteData: AutoComplete;
 let inputEl: HTMLInputElement | null;
 let suggestions: string[] = []
 let caretPosition: number = 0;
-
-onMount(() => {
-    inputEl = document.getElementById("autocomplete1") as HTMLInputElement | null
-})
 
 const inputHandler = (event: Event) => {
     event.preventDefault()
