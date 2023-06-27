@@ -21,20 +21,26 @@ export interface AutoCompFragment {
 }
 
 /**
- * AutoComplete Task
+ * AutoComplete Class
  */
 export class AutoComplete {
-    datas: AutoCompFragment[]
-    default: AutoCompFragment[]
-    fnNest: FnNest[] = []
-    backspaced: boolean = false
-    suggestions: string[] = []
+    private datas: AutoCompFragment[]
+    private default: AutoCompFragment[]
+    private fnNest: FnNest[] = []
+    private backspaced: boolean = false
+    private suggestions: string[] = []
 
     constructor(datas: AutoCompFragment[], defaultComp: AutoCompFragment[]) {
         this.datas = datas
         this.default = defaultComp
     }
 
+    /**
+     * Internal Method. Get and filter the suggestions
+     * @param input 
+     * @param caretPosition 
+     * @returns 
+     */
     getSuggestions(input?: string, caretPosition?: number): string[] {
         if (input && caretPosition) {
             let textAtCaret = findTextAtCaret(input, caretPosition)
@@ -44,6 +50,23 @@ export class AutoComplete {
         }
     }
 
+    /**
+     * Set the data inside `AutoComplete`
+     * @param datas 
+     * @param defaultComp 
+     */
+    setData(datas: AutoCompFragment[], defaultComp?: AutoCompFragment[]) {
+        this.datas = datas
+        this.default = defaultComp ?? this.default
+    }
+
+    /**
+     * Internal Method. calculate and set the suggestions
+     * @param text 
+     * @param caretPosition 
+     * @param input 
+     * @returns 
+     */
     calcSuggestions(text: string, caretPosition: number | null, input?: string) {
         const trimmedText = text.trim();
         const charInput = input ?? "";
@@ -93,6 +116,13 @@ export class AutoComplete {
         this.addDefaultSuggestions();
     }
 
+    /**
+     * Internal Method. 
+     * @param text 
+     * @param caretPosition 
+     * @param input 
+     * @returns 
+     */
     onInputHandler(text: string, caretPosition: number | null, input: string) {
         const trimmedText = text.trim();
         const charInput = input ?? "";

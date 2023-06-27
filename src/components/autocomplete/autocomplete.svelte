@@ -4,12 +4,11 @@
 </div>
 
 <script lang="ts">
-import {readMapperFunction, mapperFunction, readDataFunction} from "./demoData"
-import { AutoComplete } from "./model";
-import AutocompleteTab from "./atom/autocompleteTab.svelte";
+import type { AutoComplete } from "./model";
+import AutocompleteTab from "./autocompleteTab.svelte";
 import { onMount } from "svelte";
 
-const AutoCompleteData = new AutoComplete([readMapperFunction, mapperFunction, readDataFunction], [mapperFunction])
+export let AutoCompleteData: AutoComplete;
 let inputEl: HTMLInputElement | null;
 let suggestions: string[] = []
 let caretPosition: number = 0;
