@@ -31,7 +31,7 @@ let keyPressedHandler = (event: KeyboardEvent) => {
     caretPosition = inputEl!.selectionStart!
 
     AutoCompleteData.onInputHandler(text, caretPosition, event.key)
-    //suggestions = AutoCompleteData.getSuggestions(text, caretPosition)
+    suggestions = AutoCompleteData.getSuggestions(text, caretPosition)
 }
 
 const onClickHandler = () => {

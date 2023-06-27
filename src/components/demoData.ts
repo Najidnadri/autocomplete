@@ -6,18 +6,22 @@ export const readDataFunction: AutoCompFragment = {
     parameters: [
         {
             name: "table",
+            type: "string",
             arguments: ["test"]
         },
         {
             name: "column1",
+            type: "string",
             arguments: ["fieldA"],
         },
         {
             name: "column2",
+            type: "string",
             arguments: ["value"]
         },
         {
             name: "TableId",
+            type: "string",
             arguments: ["xidtest"]
         }
     ]
@@ -29,6 +33,7 @@ export const readMapperFunction: AutoCompFragment = {
     parameters: [
         {
             name: "TableId",
+            type: "string",
             arguments: ["xidtest"]
         }
     ]
@@ -40,10 +45,12 @@ export const mapperFunction: AutoCompFragment = {
     parameters: [
         {
             name: "arg1",
+            type: "function",
             arguments: ["ReadMapper", "ReadData"]
         },
         {
             name: "arg2",
+            type: "function",
             arguments: ["ReadMapper", "ReadData"]
         },
     ]

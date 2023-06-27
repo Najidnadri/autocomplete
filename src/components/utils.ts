@@ -29,7 +29,6 @@ export function findTextAtCaret(text: string, caretPosition: number | null, skip
             const currentChar: string = text[i];
             switch (currentChar) {
                 case ".":
-                case '"':
                 case "(":
                 case ")":
                 case ",":

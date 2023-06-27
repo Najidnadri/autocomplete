@@ -2,7 +2,8 @@ import { findTextAtCaret, isText } from "./utils"
 
 interface Parameter {
     name: string
-    arguments: string[]
+    type: "function" | "string"
+    arguments: any[]
 }
 
 interface FnNest {
@@ -144,7 +145,12 @@ export class AutoComplete {
                     name: data.name,
                     parameterIndex: 0
                 })
-                return data.parameters[0].arguments
+                const parameter = data.parameters[0]
+                if (parameter.type === "string") {
+                    return parameter.arguments.map((str) => `"${str}"`)
+                } else {
+                    return parameter.arguments
+                }
             }
         }
         return null
@@ -160,7 +166,12 @@ export class AutoComplete {
         for (const data of this.datas) {
             if (data.name === currentFn.name && data.isFunction === true) {
                 this.fnNest[this.fnNest.length - 1].parameterIndex = this.fnNest[this.fnNest.length - 1].parameterIndex + 1
-                return data.parameters[this.fnNest[this.fnNest.length - 1].parameterIndex].arguments
+                const parameter = data.parameters[this.fnNest[this.fnNest.length - 1].parameterIndex]
+                if (parameter.type === "string") {
+                    return parameter.arguments.map((str) => `"${str}"`)
+                } else {
+                    return parameter.arguments
+                }
             }
         }
         
@@ -175,7 +186,13 @@ export class AutoComplete {
         let currentFn = this.fnNest[this.fnNest.length - 1]
         for (const data of this.datas) {
             if (data.name === currentFn.name && data.isFunction === true) {
-                return data.parameters[this.fnNest[this.fnNest.length - 1].parameterIndex].arguments
+                const parameter = data.parameters[this.fnNest[this.fnNest.length - 1].parameterIndex]
+                //console.log(parameter)
+                if (parameter.type === "string") {
+                    return parameter.arguments.map((str) => `"${str}"`)
+                } else {
+                    return parameter.arguments
+                }
             }
         }
         
