@@ -16,6 +16,7 @@
 <script lang="ts">
 import type { AutoComplete } from "./model";
 import AutocompleteTab from "./autocompleteTab.svelte";
+import { moveUp, moveDown } from "./autocompleteTab.svelte"
 
 export let AutoCompleteData: AutoComplete;
 let inputEl: HTMLInputElement | null;
@@ -38,10 +39,17 @@ let keyPressedHandler = (event: KeyboardEvent) => {
     if (event.ctrlKey && event.code === "Space") {
         event.preventDefault()
         showSuggestions = !showSuggestions
+    } else if (event.code === "ArrowUp") {
+        event.preventDefault()
+        moveUp()
+    } else if (event.code === "ArrowDown") {
+        event.preventDefault()
+        moveDown()
     } else {
         AutoCompleteData.onInputHandler(text, caretPosition, event.key)
         suggestions = AutoCompleteData.getSuggestions(text, caretPosition)
     }
+
 }
 
 const onClickHandler = () => {

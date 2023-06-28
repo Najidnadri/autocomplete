@@ -1,16 +1,35 @@
 
 <div class="autocomplete-tabs">
-    {#each suggestions as suggestion}
-    <div class="autocomplete-tab">
+    {#each suggestions as suggestion, index}
+    <div class="autocomplete-tab" >
         <p>{suggestion} </p>
     </div>
     {/each}
 </div>  
 
 
-<script lang="ts"> 
-export let suggestions: string[]
+<script lang="ts" context="module"> 
+let highlightedIndex: number = 0
 
+export function moveUp() {
+    // console.log("here")
+    // highlightedIndex += 1
+    // console.log(highlightedIndex)
+}
+
+export function moveDown() {
+    // if (highlightedIndex > 0) {
+    //     highlightedIndex--
+    // }
+}
+
+export function resetHighlight() {
+    highlightedIndex = 0
+}
+</script>
+
+<script lang="ts">
+export let suggestions: string[]
 </script>
 
 
@@ -31,6 +50,10 @@ export let suggestions: string[]
 }
 
 .autocomplete-tab:hover {
+    background-color: rgb(230, 231, 232);
+}
+
+.highlight {
     background-color: rgb(213, 215, 216);
 }
 

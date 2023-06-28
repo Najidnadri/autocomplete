@@ -1,4 +1,4 @@
-import type { AutoCompFragment } from "./model"
+import type { AutoCompFragment } from "./components/autocomplete/model"
 
 export const readDataFunction: AutoCompFragment = {
     name: "ReadData",
@@ -46,12 +46,12 @@ export const mapperFunction: AutoCompFragment = {
         {
             name: "arg1",
             type: "function",
-            arguments: ["ReadMapper", "ReadData"]
+            arguments: ["ReadMapper", "ReadData", "mapper2"]
         },
         {
             name: "arg2",
             type: "function",
-            arguments: ["ReadMapper", "ReadData"]
+            arguments: ["ReadMapper", "ReadData", "mapper2"]
         },
     ]
 }
