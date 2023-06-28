@@ -1,6 +1,16 @@
 <div class="autocomplete">
-    <input type="text" on:input={inputHandler} on:click={onClickHandler} on:keydown={keyPressedHandler} bind:this={inputEl} id="autocomplete1"/>
-    <AutocompleteTab suggestions={suggestions} />
+    <input type="text" 
+        on:focus={e => setShowSuggestions(true)} 
+        on:focusout={e => setShowSuggestions(false)} 
+        on:input={inputHandler} 
+        on:click={onClickHandler} 
+        on:keydown={keyPressedHandler} 
+        bind:this={inputEl}
+    />
+    {#if showSuggestions}
+        <AutocompleteTab suggestions={suggestions} />
+    {/if}
+    
 </div>
 
 <script lang="ts">
@@ -11,6 +21,7 @@ export let AutoCompleteData: AutoComplete;
 let inputEl: HTMLInputElement | null;
 let suggestions: string[] = []
 let caretPosition: number = 0;
+let showSuggestions: boolean = false
 
 const inputHandler = (event: Event) => {
     event.preventDefault()
@@ -24,14 +35,26 @@ let keyPressedHandler = (event: KeyboardEvent) => {
     const text = inputEl?.value ?? "";
     caretPosition = inputEl!.selectionStart!
 
-    AutoCompleteData.onInputHandler(text, caretPosition, event.key)
-    suggestions = AutoCompleteData.getSuggestions(text, caretPosition)
+    if (event.ctrlKey && event.code === "Space") {
+        event.preventDefault()
+        showSuggestions = !showSuggestions
+    } else {
+        AutoCompleteData.onInputHandler(text, caretPosition, event.key)
+        suggestions = AutoCompleteData.getSuggestions(text, caretPosition)
+    }
 }
 
 const onClickHandler = () => {
     const text = inputEl?.value ?? "";
     AutoCompleteData.calcSuggestions(text, inputEl!.selectionStart)
     suggestions = AutoCompleteData.getSuggestions()
+}
+
+const setShowSuggestions = (val: boolean) => {
+    if (val === false) {
+        suggestions = []
+    }
+    showSuggestions = val
 }
 
 </script>
